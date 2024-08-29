@@ -12,12 +12,10 @@ import {
 import { useSettingsForm } from "../hooks/useSettingsForm";
 
 const SettingsForm: React.FC = () => {
-  const { formik, isLoading, error, successMessage, mutation } =
-    useSettingsForm();
+  const { formik, loading, error, successMessage } = useSettingsForm();
 
-  if (isLoading) return <Typography>Loading...</Typography>;
-  if (error)
-    return <Typography color="error">Error: {error.message}</Typography>;
+  if (loading) return <Typography>Loading...</Typography>;
+  if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
     <Box padding={2} maxWidth="800px" margin="auto">
@@ -30,7 +28,13 @@ const SettingsForm: React.FC = () => {
           {successMessage}
         </Alert>
       )}
-      <form onSubmit={formik.handleSubmit}>
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          formik.handleSubmit();
+        }}
+      >
         <Typography variant="h6" gutterBottom>
           Delivery Methods
         </Typography>
@@ -143,46 +147,72 @@ const SettingsForm: React.FC = () => {
         <Typography variant="h6" gutterBottom>
           Ticket Display
         </Typography>
-        {Object.keys(formik.values.ticketDisplay).map((option) => (
-          <FormControlLabel
-            key={option}
-            control={
-              <Checkbox
-                name={`ticketDisplay.${option}`}
-                checked={formik.values.ticketDisplay[option]}
-                onChange={formik.handleChange}
-              />
-            }
-            label={option.charAt(0).toUpperCase() + option.slice(1)}
-          />
-        ))}
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="ticketDisplay.leftInAllotment"
+              checked={formik.values.ticketDisplay.leftInAllotment}
+              onChange={formik.handleChange}
+            />
+          }
+          label="Left in Allotment"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="ticketDisplay.soldOut"
+              checked={formik.values.ticketDisplay.soldOut}
+              onChange={formik.handleChange}
+            />
+          }
+          label="Sold Out"
+        />
 
         <Typography variant="h6" gutterBottom>
           Customer Info
         </Typography>
-        {Object.keys(formik.values.customerInfo).map((info) => (
-          <FormControlLabel
-            key={info}
-            control={
-              <Checkbox
-                name={`customerInfo.${info}`}
-                checked={formik.values.customerInfo[info]}
-                onChange={formik.handleChange}
-              />
-            }
-            label={info.charAt(0).toUpperCase() + info.slice(1)}
-          />
-        ))}
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="customerInfo.active"
+              checked={formik.values.customerInfo.active}
+              onChange={formik.handleChange}
+            />
+          }
+          label="Active"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="customerInfo.basicInfo"
+              checked={formik.values.customerInfo.basicInfo}
+              onChange={formik.handleChange}
+            />
+          }
+          label="Basic Info"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="customerInfo.addressInfo"
+              checked={formik.values.customerInfo.addressInfo}
+              onChange={formik.handleChange}
+            />
+          }
+          label="Address Info"
+        />
 
-        <Button
-          color="primary"
-          variant="contained"
-          fullWidth
-          type="submit"
-          disabled={mutation.isLoading}
-        >
-          {mutation.isLoading ? "Saving..." : "Save"}
-        </Button>
+        <Box sx={{ marginTop: 2 }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Save Changes"}
+          </Button>
+        </Box>
       </form>
     </Box>
   );

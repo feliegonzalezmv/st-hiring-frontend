@@ -1,61 +1,70 @@
-// src/hooks/useSettingsForm.ts
-import { useState, useEffect } from "react";
+// src/hooks/useSettings.ts
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import { useParams } from "react-router-dom";
-import { useUpdateSettings } from "./useUpdateSettings";
-import { useSettings } from "./useSettings";
+import {
+  clearSuccessMessage,
+  fetchSettings,
+  selectError,
+  selectLoading,
+  selectSettings,
+  selectSuccessMessage,
+  updateSettings,
+} from "../slices/settingsSlice";
 
 export const useSettingsForm = () => {
   const { id } = useParams<{ id: string }>();
-  const { data, isLoading, error } = useSettings(id!);
-  const mutation = useUpdateSettings();
-  const [successMessage, setSuccessMessage] = useState("");
+  const dispatch = useDispatch();
+
+  const settings = useSelector(selectSettings);
+  const loading = useSelector(selectLoading);
+  const error = useSelector(selectError);
+  const successMessage = useSelector(selectSuccessMessage);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchSettings(id));
+    }
+  }, [id, dispatch]);
 
   const formik = useFormik({
     initialValues: {
-      deliveryMethods: data?.deliveryMethods || [],
-      fulfillmentFormat: data?.fulfillmentFormat || {
+      deliveryMethods: settings?.deliveryMethods || [],
+      fulfillmentFormat: settings?.fulfillmentFormat || {
         rfid: false,
         print: false,
       },
-      printer: data?.printer || { id: null },
-      printingFormat: data?.printingFormat || {
+      printer: settings?.printer || { id: null },
+      printingFormat: settings?.printingFormat || {
         formatA: false,
         formatB: false,
       },
-      scanning: data?.scanning || {
+      scanning: settings?.scanning || {
         scanManually: false,
         scanWhenComplete: false,
       },
-      paymentMethods: data?.paymentMethods || {
+      paymentMethods: settings?.paymentMethods || {
         cash: false,
         creditCard: false,
         comp: false,
       },
-      ticketDisplay: data?.ticketDisplay || {
+      ticketDisplay: settings?.ticketDisplay || {
         leftInAllotment: false,
         soldOut: false,
       },
-      customerInfo: data?.customerInfo || {
+      customerInfo: settings?.customerInfo || {
         active: false,
         basicInfo: false,
         addressInfo: false,
       },
     },
-    validationSchema: Yup.object({}),
     onSubmit: (values) => {
-      mutation.mutate(
-        { id: id!, settings: values },
-        {
-          onSuccess: () => {
-            setSuccessMessage("Settings updated successfully!");
-          },
-          onError: () => {
-            setSuccessMessage("");
-          },
-        }
-      );
+      console.log("values :>> ", values);
+      if (id) {
+        dispatch(updateSettings({ id, settings: values }));
+      }
     },
     enableReinitialize: true,
   });
@@ -63,12 +72,17 @@ export const useSettingsForm = () => {
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => {
-        setSuccessMessage("");
+        dispatch(clearSuccessMessage());
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [successMessage]);
+  }, [successMessage, dispatch]);
 
-  return { formik, isLoading, error, successMessage, mutation };
+  return {
+    formik,
+    loading,
+    error,
+    successMessage,
+  };
 };
