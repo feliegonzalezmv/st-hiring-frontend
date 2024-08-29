@@ -1,16 +1,13 @@
-// src/store/settingsSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 
-// Definir tipos para el estado
 interface SettingsState {
-  settings: any | null; // Puedes definir un tipo más específico para tu configuración
+  settings: any | null;
   loading: boolean;
   error: string | null;
   successMessage: string;
 }
 
-// Estado inicial
 const initialState: SettingsState = {
   settings: null,
   loading: false,
@@ -18,7 +15,6 @@ const initialState: SettingsState = {
   successMessage: "",
 };
 
-// Thunk para obtener la configuración
 export const fetchSettings = createAsyncThunk(
   "settings/fetchSettings",
   async (id: string) => {
@@ -31,7 +27,6 @@ export const fetchSettings = createAsyncThunk(
   }
 );
 
-// Thunk para actualizar la configuración
 export const updateSettings = createAsyncThunk(
   "settings/updateSettings",
   async ({ id, settings }: { id: string; settings: any }) => {

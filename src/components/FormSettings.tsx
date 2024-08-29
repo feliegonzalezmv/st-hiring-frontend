@@ -1,4 +1,3 @@
-// src/components/SettingsForm.tsx
 import React from "react";
 import {
   Button,

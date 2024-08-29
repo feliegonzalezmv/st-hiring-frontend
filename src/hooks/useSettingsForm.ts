@@ -1,4 +1,3 @@
-// src/hooks/useSettings.ts
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
